@@ -1,4 +1,4 @@
-pub mod day1_test {
+pub mod day1 {
     use regex::Regex;
     pub fn solution_1() {
         let mut sum: i32 = 0;

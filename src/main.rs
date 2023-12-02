@@ -1,9 +1,16 @@
 fn main() {
-    sol_day1()
+    sol_day2()
 }
  
 mod day1;
+mod day2;
 fn sol_day1() {
-    use day1::day1_test;
-    day1_test::solution_2();
+    use day1::day1;
+    // day1::solution_1();
+    day1::solution_2();
+}
+fn sol_day2() {
+    use day2::day2;
+    // day2::solution_1();
+    day2::solution_2();
 }
