@@ -1,0 +1,1 @@
+C:\Users\Ethan\aoc-23\target\debug\aoc-23.exe: C:\Users\Ethan\aoc-23\src\day1.rs C:\Users\Ethan\aoc-23\src\inputs\day_1\input.txt C:\Users\Ethan\aoc-23\src\main.rs
