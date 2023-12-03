@@ -22,7 +22,7 @@ pub mod day2 {
 
         let pow = games
             .iter()
-            .map(|g| g.get_min())
+            .map(|g| g.get_min_pow())
             .sum::<u32>();
 
         println!("{}", pow);
@@ -49,7 +49,7 @@ pub mod day2 {
         fn possible(&self, red: u32, green: u32, blue: u32) -> bool {
             self.sets.iter().all(|set| set.possible(red, green, blue))
         }
-        fn get_min(&self) -> u32 {
+        fn get_min_pow(&self) -> u32 {
             // get the max amount of cubes of each color
             let mut red: u32 = 0;
             let mut green: u32 = 0;
