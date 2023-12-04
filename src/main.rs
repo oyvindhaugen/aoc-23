@@ -1,5 +1,5 @@
 fn main() {
-    sol_day4()
+    sol_day5()
 }
  
 mod day1;
@@ -23,9 +23,13 @@ fn sol_day3() {
     day3::solution_2();
 }
 fn sol_day4() {
-    use day4::day4;
-    // day4::solution_1();
-    day4::solution_2();
-    
+    use day5::day5;
+    day5::solution_1();
+    day5::solution_2();
+}
+fn sol_day5() {
+    use day5::day5;
+    day5::solution_1();
+    day5::solution_2();
 }
 
