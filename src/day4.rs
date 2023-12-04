@@ -95,44 +95,54 @@ pub mod day4 {
            let result: usize = copies.iter().sum();
            println!("Total: {}", result);
        }*/
-    pub fn solution_2() {
+       pub fn solution_2() {
+        // Read the content of the file "./inputs/day4/input.txt" into a static string
         static LINES: &str = include_str!("./inputs/day4/input.txt");
+        
+        // Split the static string into a vector of string slices, where each slice corresponds to a line in the file
         let lines: Vec<&str> = LINES.lines().collect();
-
+    
+        // Initialize a vector to store counts for each line
         let mut c_count: Vec<u32> = vec![1; lines.len()];
-
+    
+        // Iterate over the lines, enumerate them, and destructure the tuple into `num` and `line`
         for (num, line) in lines.into_iter().enumerate() {
+            // Split the line by ":" and take the last part, then split it by "|" and create an iterator
             let mut s_line = line.split(":").last().unwrap().split("|").into_iter();
-            let s_keys = s_line.next().unwrap(); //takes the first element of the iterator
-            let s_values = s_line.next().unwrap(); // takes the second part of the iterator
-
-            // create vectors for the keys and values to inhabit
-            let mut keys = Vec::new(); 
+            
+            // Take the first part of the iterator as keys and the second part as values
+            let s_keys = s_line.next().unwrap();
+            let s_values = s_line.next().unwrap();
+    
+            // Create vectors to store the keys and values
+            let mut keys = Vec::new();
             let mut values = Vec::new();
-
-            // push the winning nums in as keys
+    
+            // Parse each space-separated key into u32 and push it to the keys vector
             for k in s_keys.split_ascii_whitespace() {
                 keys.push(k.parse::<u32>().unwrap());
             }
-
-            // push your nums in as values
+    
+            // Parse each space-separated value into u32 and push it to the values vector
             for v in s_values.split_ascii_whitespace() {
                 values.push(v.parse::<u32>().unwrap());
             }
-
-            // get the count of original cards where the cards match
+    
+            // Count the number of values that are also keys
             let count = values.into_iter().filter(|x| keys.contains(x)).count();
-
-            // if there are more than 0 cards
+    
+            // If there are matching values, update counts for subsequent lines
             if count != 0 {
-                // here it iterates through the range (num + 1) to (num + count + 1)
                 for i in num + 1..num + count + 1 {
-                    // and adds to the card count at [i] the amount that's at [num]
-                    c_count[i] += c_count[num]
+                    c_count[i] += c_count[num];
                 }
             }
         }
+    
+        // Sum up the counts to get the final result
         let res: u32 = c_count.into_iter().sum();
+        
+        // Print the result
         println!("Part 2: {:?}", res);
     }
 }
