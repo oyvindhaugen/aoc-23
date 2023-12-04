@@ -6,6 +6,7 @@ mod day1;
 mod day2;
 mod day3;
 mod day4;
+mod day5;
 fn sol_day1() {
     use day1::day1;
     // day1::solution_1();
