@@ -1,5 +1,5 @@
 pub mod day4 {
-    use std::{collections::HashSet, iter::once, thread::sleep};
+    // use std::{collections::HashSet, iter::once};
     pub fn solution_1() {
         let lines = include_str!("./inputs/day4/input.txt");
 
@@ -23,14 +23,10 @@ pub mod day4 {
                     .iter()
                     .map(|n| n.parse::<u32>().unwrap())
                     .collect::<Vec<u32>>();
-                let mut card_sum = 0;
+                let mut card_sum: u32 = 0;
                 for num in my_nums_pog {
                     if winning_nums.contains(&num) {
-                        if card_sum == 0 {
-                            card_sum += 1
-                        } else {
-                            card_sum *= 2
-                        }
+                        card_sum = u32::pow(2, card_sum.count_ones() as u32)
                     }
                 }
 
