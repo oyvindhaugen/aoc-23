@@ -1,40 +1,6 @@
 pub mod day5 {
-    use std::collections::HashMap;
-    use std::time::Instant;
     pub fn solution_1() {
         static LINES: &str = include_str!("./inputs/day5/input.txt");
-        // let lines: Vec<&str> = LINES.split("\r\n\r\n").collect();
-        let seeds: Vec<u64> = LINES.lines().collect::<Vec<&str>>()[0]
-            .split(": ")
-            .collect::<Vec<&str>>()[1]
-            .split_ascii_whitespace()
-            .map(|s| s.parse::<u64>().unwrap())
-            .collect();
-        let mut maps: HashMap<&str, Vec<Vec<u64>>> = HashMap::new();
-        let mut lines: Vec<&str> = LINES.split("\r\n\r\n").collect::<Vec<&str>>();
-        lines.remove(0);
-        for line in lines {
-            let mut map: Vec<_> = line.lines().collect();
-            let key: &str = map[0].split_ascii_whitespace().collect::<Vec<&str>>()[0];
-            map.remove(0);
-            let sequences: Vec<Vec<u64>> = map
-                .iter()
-                .map(|s| {
-                    s.split_ascii_whitespace()
-                        .collect::<Vec<&str>>()
-                        .iter()
-                        .map(|s| s.parse::<u64>().unwrap())
-                        .collect::<Vec<u64>>()
-                })
-                .collect();
-            maps.insert(key, sequences);
-        }
-        println!("{:?}\n", maps.get("soil-to-fertilizer").unwrap().len());
-    }
-    pub fn test() {
-        let start = Instant::now();
-        static LINES: &str = include_str!("./inputs/day5/input.txt");
-        // let lines: Vec<&str> = LINES.split("\r\n\r\n").collect();
         let seeds: Vec<u64> = LINES.lines().collect::<Vec<&str>>()[0]
             .split(": ")
             .collect::<Vec<&str>>()[1]
@@ -68,27 +34,20 @@ pub mod day5 {
         }
         let mut res: Vec<u64> = Vec::new();
         for seed in seeds {
-            // let seed = 13;
-            let mut penis = seed;
+            let mut curr = seed;
             for i in 0..steps.len() {
                 for j in 0..maps[i].len() {
-                    let (n, in_range) = num_for_next(penis, maps[i][j].clone());
-                    penis = n;
+                    let (n, in_range) = num_for_next(curr, maps[i][j].clone());
+                    curr = n;
                     if in_range {
                         break;
                     }
                 }
-                // print!("\n");
-                // dbg!(penis);
-                // print!("\n");
             }
-            res.push(penis);
+            res.push(curr);
         }
         
         dbg!(res.iter().min().unwrap());
-        eprintln!("{:?}", start.elapsed())
-        // dbg!(steps);
-        // dbg!(&maps[0]);
     }
 
     fn num_for_next(seed: u64, step_line: Vec<u64>) -> (u64, bool) {
