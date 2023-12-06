@@ -30,7 +30,7 @@ fn sol_day4() {
 fn sol_day5() {
     use day5::day5;
     // day5::test();
-    day5::solution_1();
-    // day5::solution_2();
+    // day5::solution_1();
+    day5::solution_2();
 }
 
