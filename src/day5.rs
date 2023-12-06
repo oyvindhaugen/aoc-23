@@ -61,8 +61,9 @@ pub mod day5 {
         }
 
         // Print or use res as needed
-        dbg!(res.iter().min().unwrap());
+        println!("Part 1 {:?}", res.iter().min().unwrap());
         dbg!(start.elapsed());
+        print!("\n");
     }
     
 
@@ -70,7 +71,7 @@ pub mod day5 {
         let input = include_str!("./inputs/day5/input.txt");
         let start = Instant::now();
         let solved = solve(input);
-        dbg!(solved);
+        println!("Part 2 {:?}", solved);
         dbg!(start.elapsed());
     }
     fn solve(input: &str) -> u64 {
