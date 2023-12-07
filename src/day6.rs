@@ -5,8 +5,9 @@ pub mod day6 {
         let input = include_str!("./inputs/day6/input.txt");
         // solution_1(input);
         // println!("Time spent Part 1: {:.2?}", start.elapsed());
-        solution_2(input);
-        // println!("Time spent Part 2: {:.2?}", start.elapsed());
+        // solution_2(input);
+        optimalized_sol2(input);
+        println!("Time spent Part 2: {:.2?}", start.elapsed());
     }
     fn solution_1(input: &str) {
         let splatted: Vec<Vec<u32>> = input
@@ -49,7 +50,7 @@ pub mod day6 {
             .lines()
             .map(|s| String::from(s.split(":").collect::<Vec<&str>>()[1].replace(" ", "")))
             .collect();
-        let time = splatted.iter().map(|s| { dbg!(s); s.parse::<u64>().unwrap() }).collect::<Vec<u64>>()[0];
+        let time = splatted.iter().map(|s| s.parse::<u64>().unwrap()).collect::<Vec<u64>>()[0];
         let distance = splatted.iter().map(|s| s.parse::<u64>().unwrap()).collect::<Vec<u64>>()[1];
         
         let result: u64 = std::iter::once(time).zip(std::iter::once(distance)).map(|(max_time, max_distance)| {
@@ -66,5 +67,38 @@ pub mod day6 {
         }).product();
 
         dbg!(result);
+    }
+
+    fn optimalized_sol2(input: &str) {
+        fn solution_2(input: &str) {
+            let lines: Vec<&str> = input.lines().collect();
+            
+            let time_distance: Vec<(u64, u64)> = lines[1..]
+                .iter()
+                .map(|line| {
+                    let values: Vec<u64> = line
+                        .split_whitespace()
+                        .map(|s| s.parse().unwrap())
+                        .collect();
+                    (values[0], values[1])
+                })
+                .collect();
+        
+            let result: u64 = time_distance
+                .iter()
+                .map(|&(max_time, max_distance)| {
+                    (1..max_time)
+                        .filter(|&time_spent_charging| {
+                            let remainder = max_time - time_spent_charging;
+                            let dist = time_spent_charging * remainder;
+                            dist > max_distance
+                        })
+                        .count() as u64
+                })
+                .product();
+        
+            dbg!(result);
+        }
+        
     }
 }
