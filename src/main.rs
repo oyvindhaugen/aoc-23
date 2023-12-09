@@ -1,5 +1,5 @@
 fn main() {
-    sol_day6();
+    sol_day7();
 }
  
 mod day1;
@@ -8,6 +8,7 @@ mod day3;
 mod day4;
 mod day5;
 mod day6;
+mod day7;
 fn sol_day1() {
     use day1::day1;
     // day1::solution_1();
@@ -38,5 +39,9 @@ fn sol_day5() {
 fn sol_day6() {
     use day6::day6;
     day6::run();
+}
+fn sol_day7() {
+    use day7::day7;
+    day7::run();
 }
 
