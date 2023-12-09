@@ -1,97 +1,140 @@
 pub mod day7 {
     use std::time::Instant;
     pub fn run() {
-        let start = Instant::now();
-        let input = String::from(include_str!("./inputs/day7/input.txt"));
-        let res = solve(input);
-        // I just baked them in together, couldn't be arsed to seperate them, but hey, it works :3
-        println!("part 1: {}", res.0);
-        println!("part 2: {}", res.1);
-        println!("time spent: {:?}", start.elapsed());
+        let input = include_str!("./inputs/day7/input.txt");
+        {
+            let start = Instant::now();
+            println!("part 1: {:?}", part1(input));
+            println!("time spent p1: {:?}", start.elapsed());
+        }
+        {
+            let start = Instant::now();
+            println!("part 2: {:?}", part2(input));
+            println!("time spent p2: {:?}", start.elapsed());
+        }
     }
-    struct Hand {
-        bid: u32,
-        strength: u32,
+
+    use fnv::FnvHashMap;
+    use itertools::Itertools;
+
+    type Card = char;
+
+    #[derive(Debug, PartialEq, Eq)]
+    struct Hand(String);
+
+    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+    enum HandType {
+        FiveKind = 7_000_000,
+        FourKind = 6_000_000,
+        FullHouse = 5_000_000,
+        ThreeKind = 4_000_000,
+        TwoPair = 3_000_000,
+        OnePair = 2_000_000,
+        HighCard = 1_000_000,
     }
 
     impl Hand {
-        fn new(line: &str, with_jokers: bool) -> Self {
-            let line_parts: Vec<_> = line.split_whitespace().collect();
-
-            let mut card_ch = line_parts.iter().nth(0).unwrap().chars();
-            let bid: u32 = line_parts.iter().nth(1).unwrap().parse().unwrap();
-
-            let mut strength: u32 = 0;
-            let mut jokers = 0;
-
-            let mut cards: [u32; 13] = [0; 13];
-            for i in 0..5 {
-                if let Some(card) = card_ch.next() {
-                    let value = match card {
-                        'A' => 12,
-                        'K' => 11,
-                        'Q' => 10,
-                        'J' => {
-                            if with_jokers {
-                                0
-                            } else {
-                                9
-                            }
-                        }
-                        'T' => {
-                            if with_jokers {
-                                9
-                            } else {
-                                8
-                            }
-                        }
-                        n => n.to_digit(10).unwrap() as u32 - (if with_jokers { 1 } else { 2 }),
-                    };
-
-                    if with_jokers && value == 0 {
-                        jokers += 1;
-                    } else {
-                        cards[value as usize] += 1;
-                    }
-
-                    strength |= value << ((4 - i) * 4);
+        fn high_pair(counts: &FnvHashMap<Card, usize>) -> (usize, usize) {
+            let (mut first, mut second) = (0, 0);
+            for &count in counts.values() {
+                if count > first {
+                    second = first;
+                    first = count;
+                } else if count > second {
+                    second = count;
                 }
             }
+            (first, second)
+        }
 
-            cards.sort_unstable();
-            let hand_type = match cards[12] + jokers {
-                5 => 6,
-                4 => 5,
-                3 if cards[11] == 2 => 4,
-                3 => 3,
-                2 if cards[11] == 2 => 2,
-                2 => 1,
-                _ => 0,
-            };
+        fn match_pair(first: usize, second: usize) -> HandType {
+            match (first, second) {
+                (5, _) => HandType::FiveKind,
+                (4, _) => HandType::FourKind,
+                (3, 2) => HandType::FullHouse,
+                (3, _) => HandType::ThreeKind,
+                (2, 2) => HandType::TwoPair,
+                (2, _) => HandType::OnePair,
+                _ => HandType::HighCard,
+            }
+        }
 
-            strength |= hand_type << 20;
+        fn get_type(&self) -> HandType {
+            let mut counts = FnvHashMap::with_capacity_and_hasher(5, Default::default());
+            for card in self.0.chars() {
+                *counts.entry(card).or_insert(0) += 1;
+            }
 
-            Hand { bid, strength }
+            let (first, second) = Hand::high_pair(&counts);
+            Hand::match_pair(first, second)
+        }
+
+        fn score(&self) -> u32 {
+            self.get_type() as u32 + u32::from_str_radix(&self.0, 16).unwrap()
+        }
+
+        fn get_type_joker(&self) -> HandType {
+            let mut counts = FnvHashMap::with_capacity_and_hasher(5, Default::default());
+            for card in self.0.chars() {
+                *counts.entry(card).or_insert(0) += 1;
+            }
+
+            let joker_count = counts.remove(&'1').unwrap_or(0);
+
+            let (first, second) = Hand::high_pair(&counts);
+            Hand::match_pair(first + joker_count, second)
+        }
+
+        fn score_joker(&self) -> u32 {
+            self.get_type_joker() as u32 + u32::from_str_radix(&self.0, 16).unwrap()
         }
     }
-    fn solve(input: String) -> (usize, usize) {
-        let p1 = calculate_winnings(&input, false);
-        let p2 = calculate_winnings(&input, true);
 
-        (p1, p2)
+    fn parse_input(input: &str) -> Vec<(Hand, u32)> {
+        input
+            .lines()
+            .map(|line| {
+                let (hand, bid) = line.split_once(' ').unwrap();
+                (Hand(hand.to_string()), bid.parse::<u32>().unwrap())
+            })
+            .collect_vec()
     }
 
-    fn calculate_winnings(inputs: &str, with_jokers: bool) -> usize {
-        let mut hands: Vec<Hand> = inputs
-            .lines()
-            .map(|line| Hand::new(line, with_jokers))
-            .collect();
-        hands.sort_unstable_by_key(|hand| hand.strength);
+    fn part1(input: &str) {
+        let replaced = input
+            .replace('A', "E")
+            .replace('K', "D")
+            .replace('Q', "C")
+            .replace('J', "B")
+            .replace('T', "A");
+        let mut hands = parse_input(&replaced);
+        hands.sort_by_cached_key(|(hand, _)| hand.score());
 
-        hands
+        let winnings = hands
             .iter()
             .enumerate()
-            .fold(0, |acc, (i, hand)| acc + ((i + 1) * hand.bid as usize))
-            .into()
+            .map(|(i, (_, bid))| bid * (i as u32 + 1))
+            .sum::<u32>();
+
+        println!("Day 7 Part 1: {}", winnings);
+    }
+
+    fn part2(input: &str) {
+        let replaced = input
+            .replace('A', "E")
+            .replace('K', "D")
+            .replace('Q', "C")
+            .replace('J', "1")
+            .replace('T', "A");
+        let mut hands = parse_input(&replaced);
+        hands.sort_by_cached_key(|(hand, _)| hand.score_joker());
+
+        let winnings = hands
+            .iter()
+            .enumerate()
+            .map(|(i, (_, bid))| bid * (i as u32 + 1))
+            .sum::<u32>();
+
+        println!("Day 7 Part 2: {}", winnings);
     }
 }
